@@ -9,39 +9,57 @@ const connection = require("./connection.js");
 const orm = {
 
     // This is where I need to make functions with these methods
-    // selectAll()
     // insertOne()
+    create: function (table, cols, vals, cb) {
+        let queryString = "INSERT INTO " + table;
+
+        queryString += " (";
+        queryString += cols.toString();
+        queryString += ") ";
+        queryString += "VALUES (";
+        queryString += printQuestionMarks(vals.length);
+        queryString += ") ";
+
+        console.log(queryString);
+
+        connection.query(queryString, vals, function (err, result) {
+            if (err) {
+                throw err;
+            }
+
+            cb(result);
+        });
+    },
+
+    // selectAll()
+    all: function (tableInput, cb) {
+        const queryString = "SELECT * FROM " + tableInput + ";";
+        connection.query(queryString, function (err, result) {
+            if (err) {
+                throw err;
+            }
+            cb(result);
+        });
+    },
+
     // updateOne()
+    update: function (table, objColVals, condition, cb) {
+        let queryString = "UPDATE " + table;
 
-    // selectWhere: function (tableInput, colToSearch, valOfCol) {
-    //     //   Two ? to deliniate tables and columns and one ? to deliniate values.
-    //     const queryString = "SELECT * FROM ?? WHERE ?? = ?";
-    //     connection.query(queryString, [tableInput, colToSearch, valOfCol], function (err, result) {
-    //         if (err) throw err;
-    //         console.log(result);
-    //     });
-    // },
-    // selectAndOrder: function (whatToSelect, table, orderCol) {
-    //     const queryString = "SELECT ?? FROM ?? ORDER BY ?? DESC";
-    //     console.log(queryString);
-    //     connection.query(queryString, [whatToSelect, table, orderCol], function (err, result) {
-    //         if (err) throw err;
-    //         console.log(result);
-    //     });
-    // },
-    // findWhoHasMost: function (tableOneCol, tableTwoForeignKey, tableOne, tableTwo) {
-    //     const queryString =
-    //         "SELECT ??, COUNT(??) AS count FROM ?? LEFT JOIN ?? ON ??.??= ??.id GROUP BY ?? ORDER BY count DESC LIMIT 1";
+        queryString += " SET ";
+        queryString += objToSql(objColVals);
+        queryString += " WHERE ";
+        queryString += condition;
 
-    //     connection.query(
-    //         queryString,
-    //         [tableOneCol, tableOneCol, tableOne, tableTwo, tableTwo, tableTwoForeignKey, tableOne, tableOneCol],
-    //         function (err, result) {
-    //             if (err) throw err;
-    //             console.log(result);
-    //         }
-    //     );
-    // }
+        console.log(queryString);
+        connection.query(queryString, function (err, result) {
+            if (err) {
+                throw err;
+            }
+
+            cb(result);
+        });
+    }
 };
 
 module.exports = orm;
